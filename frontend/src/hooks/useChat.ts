@@ -48,11 +48,16 @@ export function useChat(conversationId: string | undefined) {
   const [webSearch, setWebSearch] = useState(false);
   const activeIdRef = useRef<string | undefined>(conversationId);
   const abortRef = useRef<AbortController | null>(null);
+  const skipLoadRef = useRef<string | null>(null);
 
   useEffect(() => {
     activeIdRef.current = conversationId;
     if (!conversationId) {
       setMessages([]);
+      return;
+    }
+    if (skipLoadRef.current === conversationId) {
+      skipLoadRef.current = null;
       return;
     }
     let cancelled = false;
@@ -79,12 +84,7 @@ export function useChat(conversationId: string | undefined) {
   }, [conversationId]);
 
   const runStream = useCallback(
-    async (
-      request: ChatRequest,
-      placeholderUser: Message,
-      placeholderAssistant: Message,
-      createdNew: boolean,
-    ) => {
+    async (request: ChatRequest, placeholderUser: Message, placeholderAssistant: Message) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setStreaming(true);
@@ -97,9 +97,6 @@ export function useChat(conversationId: string | undefined) {
           applyEvent(event, ids, setMessages);
         }
         await refreshConversations();
-        if (createdNew && activeIdRef.current) {
-          navigate(`/chat/${activeIdRef.current}`, { replace: true });
-        }
       } catch (cause) {
         if (!controller.signal.aborted) {
           const message = errorMessage(cause, 'The request could not be completed.');
@@ -115,7 +112,7 @@ export function useChat(conversationId: string | undefined) {
         abortRef.current = null;
       }
     },
-    [navigate, refreshConversations],
+    [refreshConversations],
   );
 
   const send = useCallback(
@@ -125,12 +122,12 @@ export function useChat(conversationId: string | undefined) {
         return;
       }
       let conversationId = activeIdRef.current;
-      let createdNew = false;
       if (!conversationId) {
         const created = await createConversation();
         conversationId = created.id;
         activeIdRef.current = conversationId;
-        createdNew = true;
+        skipLoadRef.current = conversationId;
+        navigate(`/chat/${conversationId}`, { replace: true });
       }
       await runStream(
         {
@@ -140,10 +137,9 @@ export function useChat(conversationId: string | undefined) {
         },
         temporaryUserMessage(trimmed),
         temporaryAssistantMessage(),
-        createdNew,
       );
     },
-    [runStream, streaming, webSearch],
+    [navigate, runStream, streaming, webSearch],
   );
 
   const regenerate = useCallback(
@@ -175,7 +171,6 @@ export function useChat(conversationId: string | undefined) {
         },
         temporaryUserMessage(userContent),
         temporaryAssistantMessage(),
-        false,
       );
     },
     [messages, runStream, streaming, webSearch],

@@ -36,4 +36,15 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: 'Guide', level: 1 })).toBeInTheDocument();
     expect(screen.getByText(/1\. Start a chat/)).toBeInTheDocument();
   });
+
+  it('renders a conversation page when loaded directly from its URL', async () => {
+    render(
+      <MemoryRouter initialEntries={['/chat/conv-1']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: /how can i help/i })).toBeInTheDocument();
+    expect(screen.queryByText('Page not found')).not.toBeInTheDocument();
+  });
 });

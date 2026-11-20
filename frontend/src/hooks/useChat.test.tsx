@@ -12,6 +12,13 @@ import {
 import type { ChatEvent } from '../types/chat';
 import { useChat } from './useChat';
 
+const navigateMock = vi.hoisted(() => vi.fn());
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => navigateMock };
+});
+
 vi.mock('../services/api', () => ({
   ApiError: class ApiError extends Error {
     status = 0;
@@ -48,6 +55,7 @@ function wrapper({ children }: { children: ReactNode }) {
 
 describe('useChat', () => {
   beforeEach(() => {
+    navigateMock.mockClear();
     vi.mocked(listConversations).mockResolvedValue({
       items: [],
       total: 0,
@@ -107,6 +115,48 @@ describe('useChat', () => {
       expect.objectContaining({ content: 'Say hello', conversation_id: 'conv-1' }),
       expect.any(AbortSignal),
     );
+  });
+
+  it('navigates to the new conversation before streaming starts', async () => {
+    let navigateCallsAtStreamStart: unknown[][] = [];
+    vi.mocked(streamChat).mockImplementation(async function* () {
+      navigateCallsAtStreamStart = navigateMock.mock.calls.map((call) => [...call]);
+      yield {
+        type: 'done',
+        message: {
+          id: 'a1',
+          conversation_id: 'conv-1',
+          role: 'assistant',
+          content: 'Hello world',
+          created_at: '2026-01-01T00:00:00Z',
+          is_error: false,
+        },
+      };
+    });
+
+    const { result } = renderHook(() => useChat(undefined), { wrapper });
+
+    await act(async () => {
+      await result.current.send('Say hello');
+    });
+
+    expect(navigateCallsAtStreamStart).toContainEqual(['/chat/conv-1', { replace: true }]);
+  });
+
+  it('does not reload messages when the new conversation URL takes effect', async () => {
+    vi.mocked(listMessages).mockClear();
+    const { result, rerender } = renderHook(({ id }) => useChat(id), {
+      initialProps: { id: undefined as string | undefined },
+      wrapper,
+    });
+
+    await act(async () => {
+      await result.current.send('Say hello');
+    });
+    rerender({ id: 'conv-1' });
+
+    expect(vi.mocked(listMessages)).not.toHaveBeenCalled();
+    expect(result.current.messages).toHaveLength(2);
   });
 
   it('loads existing messages for a conversation', async () => {
