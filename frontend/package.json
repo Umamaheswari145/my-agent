@@ -1,10 +1,11 @@
 {
-  "name": "personal-ai-agent-frontend",
+  "name": "ai-agent-frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "sync-key": "node -e \"const fs=require('fs'),p=require('path');const e=fs.readFileSync(p.join(__dirname,'../backend/.env'),'utf8');const m=e.match(/^APP_ACCESS_TOKEN=(.*)$/m);if(!m)throw Error('APP_ACCESS_TOKEN missing');fs.writeFileSync(p.join(__dirname,'.env.local'),'VITE_API_BASE_URL=http://localhost:8000\\nVITE_API_ACCESS_TOKEN='+m[1].trim()+'\\n');console.log('Synced access key to frontend/.env.local')\"",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
@@ -12,9 +13,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "highlight.js": "^11.12.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.0"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.6.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.0",

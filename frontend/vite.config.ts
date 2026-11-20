@@ -9,7 +9,15 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost:5173',
+      },
+    },
     globals: true,
+    env: {
+      VITE_API_ACCESS_TOKEN: 'test-token',
+    },
     setupFiles: './src/test/setup.ts',
   },
 });

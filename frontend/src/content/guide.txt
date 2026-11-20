@@ -1,0 +1,42 @@
+AI AGENT - QUICK GUIDE
+
+1. Start a chat
+- Type your question in the message box and press Enter to send.
+- Press Shift + Enter for a new line.
+- Use the stop button while the assistant is replying if you want to cancel.
+- Use the copy button on a reply to copy it.
+
+2. Manage conversations
+- Click New chat in the sidebar to start fresh.
+- Click an existing conversation title to continue it.
+- Hover over a conversation to rename it with the pencil icon or delete it with the trash icon.
+- Use the search box in the sidebar to find an older conversation.
+
+3. Chat with your documents
+- Open Documents from the bottom-left menu.
+- Upload a PDF, TXT, or Markdown file up to 10 MB.
+- Wait for the status to become ready, then ask questions in Chat.
+- The assistant checks the most relevant document chunks when answering.
+- Remove documents you no longer need from the Documents page.
+
+4. Use memories
+- Open Memories from the bottom-left menu.
+- The assistant can remember simple facts and preferences from chat. You can also add a memory yourself.
+- Edit or delete any memory at any time.
+- Turn long-term memory off in Settings if you do not want it used.
+
+5. Adjust settings
+- Open Settings from the bottom-left menu.
+- Use Appearance to switch between light and dark theme.
+- Use Response preferences to change tone, answer length, and extra instructions.
+- The access key is loaded automatically from the local server setup; you do not need to paste it in the app.
+
+6. Good practices
+- Ask specific questions and include the outcome you want.
+- For document questions, use words that appear in the document.
+- Do not put passwords, API keys, or personal secrets in chats, documents, or memories.
+- Scanned or image-only PDFs need text/OCR before the assistant can search them.
+- Free models can be rate-limited. If a request fails, wait a moment and try again.
+
+Need help?
+This guide is available any time from Guide in the sidebar.
